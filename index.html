@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14110f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Ficha D&amp;D</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#14110f;--card:#1f1a17;--line:#35302b;--tx:#efe6d8;--mu:#9a8f80;--ac:#e0a43a;--red:#c4553b;--grn:#6aa36a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(8px + env(safe-area-inset-top)) 12px 8px;border-bottom:1px solid var(--line)}
+.top{display:flex;gap:8px;align-items:center}
+#chsel{flex:1;min-width:0}
+#st{font-size:12px;color:var(--mu);white-space:nowrap}
+.rollbar{margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--card);border:1px solid var(--line);font-size:15px;min-height:38px}
+.rollbar b{color:var(--ac);font-size:18px}
+.rollbar.crit{border-color:var(--grn)}.rollbar.crit b{color:var(--grn)}
+.rollbar.fum{border-color:var(--red)}.rollbar.fum b{color:var(--red)}
+main{padding:12px 12px calc(86px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+h2{margin:0 0 8px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);font-weight:600}
+h3{margin:12px 0 6px;font-size:14px;color:var(--ac)}
+input,select,textarea,button{font:inherit;color:var(--tx)}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);outline-offset:-1px}
+textarea{resize:vertical}
+button{background:#2a241f;border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+button:active{background:#3a322b}
+label{display:block;font-size:12px;color:var(--mu)}
+label input,label select{margin-top:2px;color:var(--tx);font-size:16px}
+.big{font-size:22px;font-weight:700}
+.row{display:flex;gap:8px;margin-bottom:8px}.row>*{flex:1;min-width:0}
+.k{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;display:block}
+.lvl{display:flex;align-items:center;gap:10px}
+.lvl>div{text-align:center;flex:1}.lvl b{font-size:26px}
+.lvl button{width:44px;height:44px;font-size:22px;padding:0;flex:none}
+.pb b{color:var(--ac)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.stat{text-align:center;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 4px}
+.stat b{font-size:18px;display:block}
+.stat input{text-align:center;padding:4px;margin-top:2px}
+.rollb{width:100%;background:var(--bg);color:var(--ac);font-weight:700}
+.hp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hp input{text-align:center;font-size:20px;font-weight:700}
+.quick{display:flex;gap:6px;margin-top:8px}.quick button{flex:1}
+.abs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ab{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.ab .mod{width:100%;font-size:32px;font-weight:800;color:var(--ac);background:var(--bg);padding:6px}
+.ab input{text-align:center;margin:8px 0;font-size:20px;font-weight:700;width:80px}
+.sv{display:flex;gap:6px}.sv .svb{flex:1;font-size:14px}
+.dot{width:40px;flex:none;color:var(--mu)}.dot.on{color:var(--ac);border-color:var(--ac)}
+.sk{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.sk:last-child{border:0}
+.sk .nm{flex:1}.sk .nm small{color:var(--mu);margin-left:4px}
+.sk .pr{width:42px;flex:none;font-size:18px;color:var(--mu);padding:6px 0}.sk .pr.on{color:var(--ac)}
+.sk .rollb{width:64px;flex:none}
+.slots{display:flex;align-items:center;gap:8px;padding:6px 0}
+.slots .l{width:44px;color:var(--mu);font-size:13px}
+.pip{width:34px;height:34px;border-radius:50%;padding:0;background:var(--ac);border-color:var(--ac)}
+.pip.used{background:transparent;border-color:var(--line)}
+.item{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}
+.item .f{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.item .f input:first-child{font-weight:600}
+.item .f input+input{font-size:14px;color:var(--mu)}
+.tg{width:42px;flex:none;padding:8px 0}.tg.on{background:var(--ac);color:#14110f;border-color:var(--ac)}
+.x{width:36px;flex:none;padding:8px 0;color:var(--red)}
+.cnt{font-size:20px;font-weight:700}.cnt.warn{color:var(--red)}
+.add{display:flex;gap:8px;margin-top:10px}.add input{flex:1}.add select{width:90px;flex:none}
+.hint{font-size:13px;color:var(--mu);margin:6px 0 0}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#1a1613;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+.tab{flex:1;border:0;border-radius:0;background:transparent;padding:10px 2px 8px;font-size:12px;color:var(--mu)}
+.tab span{display:block;font-size:20px}
+.tab.on{color:var(--ac)}
+.danger{color:var(--red);border-color:var(--red)}
+pre,.msg{font-size:13px;color:var(--mu)}
+</style>
+</head>
+<body>
+<header>
+  <div class="top"><select id="chsel" aria-label="Personaje"></select><span id="st"></span></div>
+  <div id="roll" class="rollbar">Toca un modificador para tirar 🎲</div>
+</header>
+<main id="main"></main>
+<nav>
+  <button class="tab" data-act="tab" data-t="ficha"><span>🛡️</span>Ficha</button>
+  <button class="tab" data-act="tab" data-t="skills"><span>🎯</span>Habilidades</button>
+  <button class="tab" data-act="tab" data-t="spells"><span>✨</span>Hechizos</button>
+  <button class="tab" data-act="tab" data-t="infus"><span>⚙️</span>Infusiones</button>
+  <button class="tab" data-act="tab" data-t="data"><span>💾</span>Datos</button>
+</nav>
+<script>
+"use strict";
+const KEY = 'dnd_pwa_v1';
+const ABIL = [['str','FUE','Fuerza'],['dex','DES','Destreza'],['con','CON','Constitución'],['int','INT','Inteligencia'],['wis','SAB','Sabiduría'],['cha','CAR','Carisma']];
+const SKILLS = [['acrobatics','Acrobacias','dex'],['arcana','Arcanos','int'],['athletics','Atletismo','str'],['deception','Engaño','cha'],['history','Historia','int'],['performance','Interpretación','cha'],['intimidation','Intimidación','cha'],['investigation','Investigación','int'],['sleight','Juego de manos','dex'],['medicine','Medicina','wis'],['nature','Naturaleza','int'],['perception','Percepción','wis'],['insight','Perspicacia','wis'],['persuasion','Persuasión','cha'],['religion','Religión','int'],['stealth','Sigilo','dex'],['survival','Supervivencia','wis'],['animal','Trato con animales','wis']];
+const FULL = {1:[2],2:[3],3:[4,2],4:[4,3],5:[4,3,2],6:[4,3,3],7:[4,3,3,1],8:[4,3,3,2],9:[4,3,3,3,1],10:[4,3,3,3,2],11:[4,3,3,3,2,1],12:[4,3,3,3,2,1],13:[4,3,3,3,2,1,1],14:[4,3,3,3,2,1,1],15:[4,3,3,3,2,1,1,1],16:[4,3,3,3,2,1,1,1],17:[4,3,3,3,2,1,1,1,1],18:[4,3,3,3,3,1,1,1,1],19:[4,3,3,3,3,2,1,1,1],20:[4,3,3,3,3,2,2,1,1]};
+const HALF = {1:[],2:[2],3:[3],4:[3],5:[4,2],6:[4,2],7:[4,3],8:[4,3],9:[4,3,2],10:[4,3,2],11:[4,3,3],12:[4,3,3],13:[4,3,3,1],14:[4,3,3,1],15:[4,3,3,2],16:[4,3,3,2],17:[4,3,3,3,1],18:[4,3,3,3,1],19:[4,3,3,3,2],20:[4,3,3,3,2]};
+const CASTERS = [['none','Sin magia'],['full','Lanzador completo'],['half','Semilanzador (paladín, explorador)'],['art','Artífice']];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const mod = s => Math.floor(((Number(s) || 0) - 10) / 2);
+const sg = n => (n >= 0 ? '+' : '−') + Math.abs(n);
+const prof = l => Math.ceil((Number(l) || 1) / 4) + 1;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const uid = () => Math.random().toString(36).slice(2, 9);
+const maxKnown = l => l >= 18 ? 12 : l >= 14 ? 10 : l >= 10 ? 8 : l >= 6 ? 6 : l >= 2 ? 4 : 0;
+const maxItems = l => l >= 18 ? 6 : l >= 14 ? 5 : l >= 10 ? 4 : l >= 6 ? 3 : l >= 2 ? 2 : 0;
+
+function blank() {
+  return { id: uid(), name: 'Nuevo personaje', cls: '', race: '', level: 1,
+    abilities: {str:10,dex:10,con:10,int:10,wis:10,cha:10}, saves: {}, skills: {},
+    hp: {cur:10,max:10,temp:0}, ac: 10, speed: '30 ft',
+    caster: 'none', castAbility: 'int', slotsUsed: [0,0,0,0,0,0,0,0,0],
+    spells: [], infusions: [], notes: '' };
+}
+function demo() {
+  return Object.assign(blank(), {
+    name: 'Kaelen (ejemplo)', cls: 'Artífice', race: 'Gnomo', level: 5,
+    abilities: {str:8,dex:14,con:14,int:17,wis:12,cha:10},
+    saves: {con:true,int:true}, skills: {arcana:1,investigation:2,sleight:1,perception:1},
+    hp: {cur:38,max:38,temp:0}, ac: 16, speed: '25 ft',
+    caster: 'art', castAbility: 'int', slotsUsed: [1,0,0,0,0,0,0,0,0],
+    spells: [
+      {id:uid(),name:'Rayo de fuego',level:0,prepared:false,notes:'1d10 · 120 ft'},
+      {id:uid(),name:'Reparar',level:0,prepared:false,notes:''},
+      {id:uid(),name:'Curar heridas',level:1,prepared:true,notes:'1d8 + mod'},
+      {id:uid(),name:'Fuego feérico',level:1,prepared:true,notes:'Concentración'},
+      {id:uid(),name:'Identificar',level:1,prepared:false,notes:'Ritual'}
+    ],
+    infusions: [
+      {id:uid(),name:'Arma mejorada',item:'Espada corta',active:true},
+      {id:uid(),name:'Defensa mejorada',item:'Armadura de cuero',active:true}
+    ],
+    notes: 'Esto es un personaje de ejemplo. Edítalo o crea uno nuevo en la pestaña Datos.'
+  });
+}
+function load() {
+  try {
+    const r = localStorage.getItem(KEY);
+    if (r) { const s = JSON.parse(r); if (s && s.chars && s.chars[s.cur]) return s; }
+  } catch (e) {}
+  const d = demo(); return { cur: d.id, chars: { [d.id]: d } };
+}
+let S = load(), tab = 'ficha', lastCalc = null, saveTimer = null;
+const C = () => S.chars[S.cur];
+function setStatus(t) { const e = $('#st'); if (e) e.textContent = t; }
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); setStatus('Guardado ✓'); }
+    catch (e) { setStatus('⚠ Sin guardado'); }
+  }, 150);
+}
+
+function slotsFor(c) {
+  const l = clamp(Number(c.level) || 1, 1, 20);
+  if (c.caster === 'full') return FULL[l];
+  if (c.caster === 'half') return HALF[l];
+  if (c.caster === 'art') return l === 1 ? [2] : HALF[l];
+  return [];
+}
+function calc(c) {
+  const p = prof(c.level), R = {}, V = {};
+  ABIL.forEach(([k]) => { R['m.'+k] = mod(c.abilities[k]); R['sv.'+k] = R['m.'+k] + (c.saves[k] ? p : 0); });
+  SKILLS.forEach(([k,,a]) => { R['sk.'+k] = R['m.'+a] + (c.skills[k] || 0) * p; });
+  R.init = R['m.dex']; R.pp = 10 + R['sk.perception'];
+  const cm = R['m.' + c.castAbility];
+  R.atk = p + cm; R.dc = 8 + p + cm; R.p = p;
+  Object.keys(R).forEach(k => V[k] = (k === 'pp' || k === 'dc') ? String(R[k]) : sg(R[k]));
+  const n = c.spells.filter(s => s.level > 0 && s.prepared).length;
+  const mx = Math.max(1, cm + (c.caster === 'full' ? c.level : Math.floor(c.level / 2)));
+  V.prep = c.caster === 'none' ? '—' : n + ' / ' + mx;
+  if (c.caster === 'none') { V.dc = '—'; V.atk = '—'; }
+  return { R, V };
+}
+function updateCalcs() {
+  lastCalc = calc(C());
+  document.querySelectorAll('[data-c]').forEach(e => { e.textContent = lastCalc.V[e.dataset.c] ?? ''; });
+}
+
+/* ---------- Tiradas ---------- */
+function showRoll(label, d, b, t, cls) {
+  const r = $('#roll');
+  r.className = 'rollbar ' + (cls || '');
+  const bon = b ? ` ${b >= 0 ? '+' : '−'} ${Math.abs(b)}` : '';
+  r.innerHTML = `${esc(label)}: 🎲 ${d}${bon} = <b>${t}</b>`;
+}
+function roll(label, b) {
+  const d = 1 + Math.floor(Math.random() * 20);
+  showRoll(label, d, b, d + b, d === 20 ? 'crit' : d === 1 ? 'fum' : '');
+}
+function rollDie(n) {
+  const d = 1 + Math.floor(Math.random() * n);
+  showRoll('d' + n, d, 0, d, '');
+}
+
+/* ---------- Vistas ---------- */
+function vFicha(c) {
+  const hpq = [-5,-1,1,5].map(d => `<button data-act="hp" data-d="${d}">${d > 0 ? '+' : '−'}${Math.abs(d)}</button>`).join('');
+  const abs = ABIL.map(([k,ab,nm]) => `
+    <div class="ab">
+      <span class="k">${nm}</span>
+      <button class="mod" data-act="roll" data-label="${nm}" data-key="m.${k}"><span data-c="m.${k}"></span></button>
+      <input type="number" inputmode="numeric" data-bind="abilities.${k}" value="${c.abilities[k]}" aria-label="${nm}">
+      <div class="sv">
+        <button class="dot ${c.saves[k] ? 'on' : ''}" data-act="save" data-k="${k}" title="Competencia en salvación">${c.saves[k] ? '●' : '○'}</button>
+        <button class="svb" data-act="roll" data-label="Salvación ${ab}" data-key="sv.${k}">Salv. <b data-c="sv.${k}"></b></button>
+      </div>
+    </div>`).join('');
+  const dice = [4,6,8,10,12,20,100].map(n => `<button data-act="die" data-n="${n}">d${n}</button>`).join('');
+  return `
+  <section class="card">
+    <input class="big" data-bind="name" value="${esc(c.name)}" placeholder="Nombre" aria-label="Nombre">
+    <div class="row" style="margin-top:8px">
+      <label>Clase<input data-bind="cls" value="${esc(c.cls)}"></label>
+      <label>Raza<input data-bind="race" value="${esc(c.race)}"></label>
+    </div>
+    <div class="lvl">
+      <button data-act="lvl" data-d="-1" aria-label="Bajar nivel">−</button>
+      <div><span class="k">Nivel</span><b>${c.level}</b></div>
+      <button data-act="lvl" data-d="1" aria-label="Subir nivel">+</button>
+      <div class="pb"><span class="k">Competencia</span><b data-c="p"></b></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Vida</h2>
+    <div class="hp">
+      <label>Actual<input type="number" inputmode="numeric" data-bind="hp.cur" value="${c.hp.cur}"></label>
+      <label>Máxima<input type="number" inputmode="numeric" data-bind="hp.max" value="${c.hp.max}"></label>
+      <label>Temporal<input type="number" inputmode="numeric" data-bind="hp.temp" value="${c.hp.temp}"></label>
+    </div>
+    <div class="quick">${hpq}</div>
+    <div class="quick"><button data-act="rest">🌙 Descanso largo</button></div>
+    <div class="stats">
+      <div class="stat"><span class="k">CA</span><input type="number" inputmode="numeric" data-bind="ac" value="${c.ac}"></div>
+      <div class="stat"><span class="k">Vel.</span><input data-bind="speed" value="${esc(c.speed)}"></div>
+      <div class="stat"><span class="k">Iniciativa</span><button class="rollb" data-act="roll" data-label="Iniciativa" data-key="init"><span data-c="init"></span></button></div>
+      <div class="stat"><span class="k">Perc. pasiva</span><b data-c="pp"></b></div>
+    </div>
+  </section>
+  <section class="abs">${abs}</section>
+  <section class="card" style="margin-top:12px"><h2>Dados</h2><div class="quick" style="flex-wrap:wrap">${dice}</div></section>`;
+}
+
+function vSkills(c) {
+  const sym = ['○','●','◉'];
+  const rows = SKILLS.map(([k,nm,a]) => {
+    const st = c.skills[k] || 0, ab = ABIL.find(x => x[0] === a)[1];
+    return `<div class="sk">
+      <button class="pr ${st ? 'on' : ''}" data-act="skill" data-k="${k}" aria-label="Competencia">${sym[st]}</button>
+      <div class="nm">${nm}<small>${ab}</small></div>
+      <button class="rollb" data-act="roll" data-label="${nm}" data-key="sk.${k}"><span data-c="sk.${k}"></span></button>
+    </div>`;
+  }).join('');
+  return `<section class="card"><h2>Habilidades</h2>${rows}
+    <p class="hint">○ sin competencia · ● competente · ◉ pericia (doble). Toca el bonus para tirar d20.</p></section>`;
+}
+
+function vSpells(c) {
+  const slots = slotsFor(c);
+  const casterOpts = CASTERS.map(([v,t]) => `<option value="${v}" ${c.caster === v ? 'selected' : ''}>${t}</option>`).join('');
+  const abOpts = ABIL.map(([k,ab,nm]) => `<option value="${k}" ${c.castAbility === k ? 'selected' : ''}>${nm}</option>`).join('');
+  const slotRows = slots.map((mx, i) => {
+    const used = Math.min(c.slotsUsed[i] || 0, mx);
+    const pips = Array.from({length: mx}, (_, j) => `<button class="pip ${j < used ? 'used' : ''}" data-act="slot" data-l="${i+1}" data-i="${j}" aria-label="Espacio nivel ${i+1}"></button>`).join('');
+    return `<div class="slots"><span class="l">Nv ${i+1}</span>${pips}</div>`;
+  }).join('');
+  let list = '';
+  for (let lv = 0; lv <= 9; lv++) {
+    const items = c.spells.map((s, i) => [s, i]).filter(([s]) => s.level === lv);
+    if (!items.length) continue;
+    list += `<h3>${lv === 0 ? 'Trucos' : 'Nivel ' + lv}</h3>` + items.map(([s, i]) => `
+      <div class="item">
+        ${lv > 0 ? `<button class="tg ${s.prepared ? 'on' : ''}" data-act="prep" data-i="${i}" title="Preparado">${s.prepared ? '✓' : '○'}</button>` : ''}
+        <div class="f"><input data-bind="spells.${i}.name" value="${esc(s.name)}"><input data-bind="spells.${i}.notes" value="${esc(s.notes)}" placeholder="Notas"></div>
+        <button class="x" data-act="delspell" data-i="${i}" aria-label="Borrar">✕</button>
+      </div>`).join('');
+  }
+  const lvOpts = Array.from({length: 10}, (_, i) => `<option value="${i}">${i === 0 ? 'Truco' : 'Nv ' + i}</option>`).join('');
+  return `
+  <section class="card">
+    <h2>Lanzamiento de conjuros</h2>
+    <div class="row"><label>Tipo<select data-bind="caster">${casterOpts}</select></label>
+    <label>Característica<select data-bind="castAbility">${abOpts}</select></label></div>
+    <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat"><span class="k">CD</span><b data-c="dc"></b></div>
+      <div class="stat"><span class="k">Ataque</span><b data-c="atk"></b></div>
+      <div class="stat"><span class="k">Preparados</span><b data-c="prep"></b></div>
+    </div>
+    <p class="hint">Preparados es orientativo (no cuenta trucos ni hechizos siempre preparados).</p>
+  </section>
+  <section class="card">
+    <h2>Espacios de conjuro</h2>
+    ${slotRows || '<p class="hint">Este tipo de lanzador no tiene espacios a este nivel.</p>'}
+    <p class="hint">Círculo lleno = disponible. Toca uno para gastarlo, toca uno gastado para recuperarlo.</p>
+  </section>
+  <section class="card">
+    <h2>Hechizos</h2>
+    ${list || '<p class="hint">Aún no hay hechizos.</p>'}
+    <div class="add"><input id="ns" placeholder="Nuevo hechizo"><select id="nl">${lvOpts}</select><button data-act="addspell">＋</button></div>
+  </section>`;
+}
+
+function vInfus(c) {
+  const mk = maxKnown(c.level), mi = maxItems(c.level);
+  const act = c.infusions.filter(x => x.active).length;
+  const list = c.infusions.map((x, i) => `
+    <div class="item">
+      <button class="tg ${x.active ? 'on' : ''}" data-act="infact" data-i="${i}" title="Infundida en un objeto">${x.active ? '⚡' : '○'}</button>
+      <div class="f"><input data-bind="infusions.${i}.name" value="${esc(x.name)}" placeholder="Infusión"><input data-bind="infusions.${i}.item" value="${esc(x.item)}" placeholder="Objeto infundido"></div>
+      <button class="x" data-act="delinf" data-i="${i}" aria-label="Borrar">✕</button>
+    </div>`).join('');
+  return `
+  <section class="card">
+    <h2>Infusiones</h2>
+    <div class="stats" style="grid-template-columns:1fr 1fr">
+      <div class="stat"><span class="k">Conocidas</span><span class="cnt ${c.infusions.length > mk ? 'warn' : ''}">${c.infusions.length} / ${mk}</span></div>
+      <div class="stat"><span class="k">Objetos infundidos</span><span class="cnt ${act > mi ? 'warn' : ''}">${act} / ${mi}</span></div>
+    </div>
+    <p class="hint">${c.level < 2 ? 'El Artífice recibe infusiones a nivel 2.' : 'Máximos según nivel de Artífice. ⚡ = infusión activa en un objeto.'}</p>
+  </section>
+  <section class="card">
+    <h2>Mis infusiones</h2>
+    ${list || '<p class="hint">Aún no hay infusiones.</p>'}
+    <div class="add"><input id="ni" placeholder="Nueva infusión"><button data-act="addinf">＋</button></div>
+  </section>`;
+}
+
+function vData(c) {
+  return `
+  <section class="card"><h2>Notas</h2><textarea rows="6" data-bind="notes" placeholder="Trasfondo, equipo, notas de campaña…">${esc(c.notes)}</textarea></section>
+  <section class="card">
+    <h2>Personajes</h2>
+    <div class="quick"><button data-act="newchar">＋ Nuevo en blanco</button><button data-act="demochar">Ejemplo</button></div>
+    <div class="quick"><button class="danger" data-act="delchar">Borrar este personaje</button></div>
+  </section>
+  <section class="card">
+    <h2>Copia de seguridad</h2>
+    <p class="hint" style="margin-top:0">Tus datos se guardan solo en este navegador. Exporta de vez en cuando.</p>
+    <textarea id="bk" rows="4" placeholder="Aquí aparece el JSON al exportar. Pega aquí uno para importarlo."></textarea>
+    <div class="quick"><button data-act="export">Exportar</button><button data-act="import">Importar texto</button></div>
+    <div class="quick"><input type="file" id="imp" accept=".json,application/json"></div>
+    <p class="msg" id="msg"></p>
+  </section>
+  <section class="card">
+    <h2>Instalar como app</h2>
+    <p class="hint" style="margin-top:0"><b>Android (Chrome):</b> menú ⋮ → «Instalar aplicación».<br><b>iPhone (Safari):</b> Compartir → «Añadir a pantalla de inicio».</p>
+  </section>`;
+}
+const VIEWS = { ficha: vFicha, skills: vSkills, spells: vSpells, infus: vInfus, data: vData };
+
+function render() {
+  const y = window.scrollY, c = C();
+  $('#chsel').innerHTML = Object.values(S.chars).map(x => `<option value="${x.id}" ${x.id === S.cur ? 'selected' : ''}>${esc(x.name || 'Sin nombre')}</option>`).join('');
+  $('#main').innerHTML = VIEWS[tab](c);
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
+  updateCalcs();
+  window.scrollTo(0, y);
+}
+
+/* ---------- Eventos ---------- */
+function setPath(o, path, v) {
+  const p = path.split('.'); const last = p.pop();
+  let t = o; p.forEach(k => { t = t[k]; }); t[last] = v;
+}
+function msg(t) { const e = $('#msg'); if (e) e.textContent = t; }
+function importJSON(text) {
+  try {
+    const o = JSON.parse(text);
+    if (!o || typeof o !== 'object' || !o.abilities) throw new Error('bad');
+    const n = Object.assign(blank(), o, { id: uid() });
+    S.chars[n.id] = n; S.cur = n.id; save(); render(); msg('Personaje importado ✓');
+  } catch (e) { msg('JSON no válido'); }
+}
+
+document.addEventListener('input', e => {
+  const el = e.target.closest('[data-bind]'); if (!el) return;
+  const v = el.type === 'number' ? (el.value === '' ? 0 : Number(el.value)) : el.value;
+  setPath(C(), el.dataset.bind, v);
+  if (el.dataset.bind === 'name') {
+    const o = $('#chsel').selectedOptions[0]; if (o) o.textContent = v || 'Sin nombre';
+  }
+  save();
+  if (el.tagName === 'SELECT') render(); else updateCalcs();
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'chsel') { S.cur = e.target.value; save(); render(); }
+  if (e.target.id === 'imp' && e.target.files[0]) {
+    const r = new FileReader();
+    r.onload = () => importJSON(String(r.result));
+    r.readAsText(e.target.files[0]);
+  }
+});
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const c = C(), a = el.dataset.act, d = el.dataset;
+  switch (a) {
+    case 'tab': tab = d.t; render(); window.scrollTo(0, 0); return;
+    case 'roll': roll(d.label, lastCalc.R[d.key]); return;
+    case 'die': rollDie(Number(d.n)); return;
+    case 'lvl': c.level = clamp(c.level + Number(d.d), 1, 20); break;
+    case 'hp': c.hp.cur = clamp((Number(c.hp.cur) || 0) + Number(d.d), 0, Number(c.hp.max) || 0); break;
+    case 'rest': c.slotsUsed = c.slotsUsed.map(() => 0); c.hp.cur = c.hp.max; c.hp.temp = 0; break;
+    case 'save': c.saves[d.k] = !c.saves[d.k]; break;
+    case 'skill': c.skills[d.k] = ((c.skills[d.k] || 0) + 1) % 3; break;
+    case 'slot': { const l = Number(d.l) - 1, i = Number(d.i), u = c.slotsUsed[l] || 0; c.slotsUsed[l] = i < u ? i : i + 1; break; }
+    case 'prep': c.spells[d.i].prepared = !c.spells[d.i].prepared; break;
+    case 'delspell': c.spells.splice(Number(d.i), 1); break;
+    case 'addspell': {
+      const n = $('#ns').value.trim(); if (!n) return;
+      c.spells.push({ id: uid(), name: n, level: Number($('#nl').value), prepared: false, notes: '' }); break;
+    }
+    case 'infact': c.infusions[d.i].active = !c.infusions[d.i].active; break;
+    case 'delinf': c.infusions.splice(Number(d.i), 1); break;
+    case 'addinf': {
+      const n = $('#ni').value.trim(); if (!n) return;
+      c.infusions.push({ id: uid(), name: n, item: '', active: false }); break;
+    }
+    case 'newchar': { const b = blank(); S.chars[b.id] = b; S.cur = b.id; tab = 'ficha'; break; }
+    case 'demochar': { const b = demo(); S.chars[b.id] = b; S.cur = b.id; tab = 'ficha'; break; }
+    case 'delchar':
+      if (el.dataset.armed) {
+        delete S.chars[S.cur];
+        let ids = Object.keys(S.chars);
+        if (!ids.length) { const b = blank(); S.chars[b.id] = b; ids = [b.id]; }
+        S.cur = ids[0]; tab = 'ficha'; break;
+      }
+      el.dataset.armed = '1'; el.textContent = '¿Seguro? Toca otra vez';
+      setTimeout(() => { delete el.dataset.armed; el.textContent = 'Borrar este personaje'; }, 3000);
+      return;
+    case 'export': {
+      const j = JSON.stringify(c, null, 1); $('#bk').value = j;
+      try {
+        const b = new Blob([j], { type: 'application/json' });
+        const l = document.createElement('a');
+        l.href = URL.createObjectURL(b);
+        l.download = (c.name || 'personaje').replace(/\W+/g, '_') + '.json';
+        document.body.appendChild(l); l.click(); l.remove();
+      } catch (_) {}
+      try { navigator.clipboard.writeText(j).then(() => msg('Copiado ✓'), () => msg('Texto listo arriba')); }
+      catch (_) { msg('Texto listo arriba'); }
+      return;
+    }
+    case 'import': importJSON($('#bk').value); return;
+    default: return;
+  }
+  save(); render();
+});
+
+/* ---------- Arranque ---------- */
+render();
+setStatus('Listo');
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (_) {}
+try {
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js').catch(() => {});
+} catch (_) {}
+</script>
+</body>
+</html>
